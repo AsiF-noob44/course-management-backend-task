@@ -1,9 +1,9 @@
 import express from "express";
-import connectDB from "./configs/db.js";
+import connectDB from "./src/configs/db.js";
 import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
-import userRoutes from "./routes/userRoutes.js";
-import courseRoutes from "./routes/courseRoutes.js";
+import userRoutes from "./src/routes/userRoutes.js";
+import courseRoutes from "./src/routes/courseRoutes.js";
 
 dotenv.config();
 const app = express();
