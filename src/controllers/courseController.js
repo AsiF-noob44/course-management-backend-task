@@ -1,5 +1,5 @@
 import Course from "../models/Course.js";
-import { cloudinary } from "../configs/cloudinary.js";
+import cloudinary from "../configs/cloudinary.js";
 
 // Helper function to extract public_id from Cloudinary URL
 const getPublicIdFromUrl = (url) => {
@@ -170,9 +170,7 @@ export const updateCourse = async (req, res) => {
     if (category) course.category = category;
     if (instructorName) course.instructorName = instructorName;
 
-    // Update image if new file was uploaded or new URL provided
     if (req.file) {
-      // Delete old image from Cloudinary if it exists
       if (course.courseImage) {
         const publicId = getPublicIdFromUrl(course.courseImage);
         if (publicId) {
