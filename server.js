@@ -15,8 +15,8 @@ app.use(express.urlencoded({ extended: true }));
 
 connectDB();
 
-app.use("/api/users", userRoutes);
-app.use("/api/courses", courseRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/courses", courseRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

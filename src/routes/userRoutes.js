@@ -6,6 +6,7 @@ import {
   logoutUser,
   updateUser,
   getUserProfile,
+  deleteUser,
 } from "../controllers/userController.js";
 import { validateUser } from "../middlewares/validate.js";
 const router = express.Router();
@@ -21,6 +22,9 @@ router.get("/profile", validateUser, getUserProfile);
 
 //? Update User Profile
 router.put("/profile", validateUser, updateUser);
+
+//? Delete User Account
+router.delete("/profile", validateUser, deleteUser);
 
 //? Get All Users
 router.get("/", validateUser, getAllUsers);

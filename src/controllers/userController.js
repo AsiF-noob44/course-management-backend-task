@@ -1,6 +1,8 @@
 import User from "../models/User.js";
+import Course from "../models/Course.js";
 import authConfigs from "../configs/auth.js";
 import bcryptjs from "bcryptjs";
+import cloudinary from "../configs/cloudinary.js";
 
 //? Register
 export const registerUser = async (req, res) => {
@@ -282,6 +284,78 @@ export const updateUser = async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Error updating user",
+      error: error.message,
+    });
+  }
+};
+
+//? Delete User Account
+export const deleteUser = async (req, res) => {
+  try {
+    const userId = req.user.userId;
+    const { password } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    if (!password) {
+      return res.status(400).json({
+        success: false,
+        message: "Password is required to delete account",
+      });
+    }
+
+    const isMatch = await bcryptjs.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(401).json({
+        success: false,
+        message: "Incorrect password",
+      });
+    }
+
+    const userCourses = await Course.find({ createdBy: userId });
+
+    for (const course of userCourses) {
+      if (course.courseImage) {
+        const parts = course.courseImage.split("/");
+        const filename = parts[parts.length - 1];
+        const publicId = `course-images/${filename.split(".")[0]}`;
+
+        try {
+          await cloudinary.uploader.destroy(publicId);
+          console.log(`Deleted image: ${publicId}`);
+        } catch (error) {
+          console.error(`Error deleting image ${publicId}:`, error);
+        }
+      }
+    }
+
+    await Course.deleteMany({ createdBy: userId });
+    console.log(`Deleted ${userCourses.length} courses`);
+
+    await User.findByIdAndDelete(userId);
+
+    res.clearCookie("user-token", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "Strict",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "User account and all associated data deleted successfully",
+      deletedCourses: userCourses.length,
+    });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error deleting user account",
       error: error.message,
     });
   }
